@@ -1,66 +1,61 @@
 package com.arnau_briet.gestionanimales.backend.business.services.impl;
 
 import com.arnau_briet.gestionanimales.backend.business.model.Animal;
+import com.arnau_briet.gestionanimales.backend.business.model.Caracteristicas;
 import com.arnau_briet.gestionanimales.backend.business.services.AnimalServices;
+import com.arnau_briet.gestionanimales.backend.repositories.AnimalRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class AnimalServicesImpl implements AnimalServices {
-    private final ConcurrentSkipListMap<Long, Animal> animales = new ConcurrentSkipListMap<>();
-    private final AtomicLong idCounter = new AtomicLong(0);  // More thread-safe and explicit ID handling
 
-    public AnimalServicesImpl() {
-        init();  // Pre-populate some animals
-    }
+    @Autowired
+    private AnimalRepository animalRepository;
 
     @Override
+    @Transactional
     public Long create(Animal animal) {
-        long id = idCounter.incrementAndGet();  // Ensure unique ID generation
-        animal.setId(id);
-        animales.put(id, animal);
-        return id;
+        if (animal.getId() != null) {
+            throw new IllegalStateException("No se puede crear un animal con ID no nulo");
+        }
+        Animal savedAnimal = animalRepository.save(animal);
+        return savedAnimal.getId();
     }
 
     @Override
     public Optional<Animal> read(Long id) {
-        return Optional.ofNullable(animales.get(id));
+        return animalRepository.findById(id);
     }
 
     @Override
     public List<Animal> getAll() {
-        return new ArrayList<>(animales.values());
+        return animalRepository.findAll();
     }
 
     @Override
+    @Transactional
     public void update(Animal animal) {
-        if (animal.getId() == null || !animales.containsKey(animal.getId())) {
+        if (animal.getId() == null || !animalRepository.existsById(animal.getId())) {
             throw new IllegalStateException("El animal con ID " + animal.getId() + " no existe. No se puede actualizar.");
         }
-        animales.put(animal.getId(), animal);
+        animalRepository.save(animal);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
-        if (!animales.containsKey(id)) {
+        if (!animalRepository.existsById(id)) {
             throw new IllegalStateException("El animal con ID " + id + " no existe. No se puede eliminar.");
         }
-        animales.remove(id);
+        animalRepository.deleteById(id);
     }
 
-    private void init() {
-        // Initializing with some pre-defined animals
-        Animal a1 = new Animal(1L, "León", "Panthera leo", null, "Vulnerable");
-        Animal a2 = new Animal(2L, "Elefante", "Loxodonta africana", null, "En peligro");
-        Animal a3 = new Animal(3L, "Tortuga Galápagos", "Chelonoidis nigra", null, "Vulnerable");
-
-        animales.put(a1.getId(), a1);
-        animales.put(a2.getId(), a2);
-        animales.put(a3.getId(), a3);
+    public List<Animal> findAnimalesByCaracteristicas(Caracteristicas caracteristicas) {
+        return animalRepository.findAnimalesByCaracteristicas(caracteristicas.getHabitat(), caracteristicas.getDieta(), caracteristicas.getVidaMedia());
     }
 }

@@ -1,16 +1,30 @@
 package com.arnau_briet.gestionanimales.backend.business.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Entity
+@Table(name = "animales")
 public class Animal implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "nombre", nullable = false)
     private String nombre;
+
+    @Column(name = "especie", nullable = false)
     private String especie;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "caracteristicas_id", referencedColumnName = "id")
     private Caracteristicas caracteristicas;
+
+    @Column(name = "estado_conservacion")
     private String estadoConservacion;
 
     // Constructor vacío
@@ -18,8 +32,7 @@ public class Animal implements Serializable {
     }
 
     // Constructor con todos los parámetros
-    public Animal(Long id, String nombre, String especie, Caracteristicas caracteristicas,
-            String estadoConservacion) {
+    public Animal(Long id, String nombre, String especie, Caracteristicas caracteristicas, String estadoConservacion) {
         this.id = id;
         this.nombre = nombre;
         this.especie = especie;
@@ -92,7 +105,7 @@ public class Animal implements Serializable {
     @Override
     public String toString() {
         return "Animal{" +
-                "id='" + id + '\'' +
+                "id=" + id +
                 ", nombre='" + nombre + '\'' +
                 ", especie='" + especie + '\'' +
                 ", caracteristicas=" + caracteristicas +

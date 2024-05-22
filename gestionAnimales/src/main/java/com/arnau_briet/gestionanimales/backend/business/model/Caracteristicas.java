@@ -1,12 +1,26 @@
 package com.arnau_briet.gestionanimales.backend.business.model;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Entity
+@Table(name = "caracteristicas")
 public class Caracteristicas implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "habitat")
     private String habitat;
+
+    @Column(name = "dieta")
     private String dieta;
+
+    @Column(name = "vida_media")
     private int vidaMedia;
 
     // Constructor vacío
@@ -21,6 +35,14 @@ public class Caracteristicas implements Serializable {
     }
 
     // Getters y setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getHabitat() {
         return habitat;
     }

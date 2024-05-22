@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,67 +29,59 @@ public class AnimalController {
     @Autowired
     private AnimalServices animalServices;
 
-    @GetMapping("/todos")
+    @GetMapping
     public List<Animal> getAllAnimals() {
         return animalServices.getAll();
     }
 
-    @GetMapping("/buscar/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getAnimalById(@PathVariable Long id) {
+        if(id > 500) {
+            throw new RuntimeException("El número " + id + " no es válido.");
+        }
+
         Optional<Animal> optional = animalServices.read(id);
-        if (optional.isPresent()) {
+        if (!optional.isPresent()) {
             RespuestaError respuestaError = new RespuestaError("No se encuentra el animal con ID " + id);
             return new ResponseEntity<>(respuestaError, HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok(optional.get());
     }
 
-    @PostMapping("/crear")
+    @PostMapping
     public ResponseEntity<?> createAnimal(@RequestBody Animal animal, UriComponentsBuilder ucb) {
         Long id;
         try {
             id = animalServices.create(animal);
         } catch (IllegalStateException e) {
-            throw new RuntimeException(e.getMessage());
+            return ResponseEntity.badRequest().body(new RespuestaError(e.getMessage()));
         }
         URI uri = ucb.path("/animales/{id}").buildAndExpand(id).toUri();
         return ResponseEntity.created(uri).build();
     }
 
-    @DeleteMapping("/eliminar/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAnimal(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAnimal(@PathVariable Long id) {
         try {
             animalServices.delete(id);
         } catch (IllegalStateException e) {
-            throw new RuntimeException("No se encuentra el animal con ID " + id + ". No se ha podido eliminar.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RespuestaError("No se encuentra el animal con ID " + id + ". No se ha podido eliminar."));
         }
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/actualizar")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateAnimal(@RequestBody Animal animal) {
+    @PutMapping
+    public ResponseEntity<?> updateAnimal(@RequestBody Animal animal) {
         try {
             animalServices.update(animal);
         } catch (IllegalStateException e) {
-            throw new RuntimeException(e.getMessage());
+            return ResponseEntity.badRequest().body(new RespuestaError(e.getMessage()));
         }
+        return ResponseEntity.noContent().build();
     }
 
-    // ****************************************************
-    //
-    // Gestión de excepciones
-    //
-    // ****************************************************
-
-    @ExceptionHandler({ IllegalArgumentException.class, ClassCastException.class })
-    public ResponseEntity<?> errorHandler1(Exception e) {
+    @ExceptionHandler({ IllegalArgumentException.class, ClassCastException.class, IllegalStateException.class })
+    public ResponseEntity<?> errorHandler(Exception e) {
         return ResponseEntity.badRequest().body(new RespuestaError(e.getMessage()));
     }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> errorHandler2(Exception e) {
-        return ResponseEntity.badRequest().body(new RespuestaError(e.getMessage()));
-    }
-
 }
