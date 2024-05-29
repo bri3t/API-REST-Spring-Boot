@@ -11,6 +11,6 @@ import com.arnau_briet.gestionanimales.backend.business.model.Caracteristicas;
 
 public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
-    @Query("SELECT a FROM Animal a WHERE a.caracteristicas.habitat = :habitat AND a.caracteristicas.dieta = :dieta AND a.caracteristicas.vidaMedia = :vidaMedia")
-    List<Animal> findAnimalesByCaracteristicas(@Param("habitat") String habitat, @Param("dieta") String dieta, @Param("vidaMedia") int vidaMedia);
+    @Query("SELECT a FROM Animal a WHERE a.nombre = :nombre AND a.especie = :especie")
+    List<Animal> findAnimalesByNombreEspecie(@Param("nombre") String nombre, @Param("especie") String especie);
 }

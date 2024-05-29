@@ -55,7 +55,7 @@ public class AnimalServicesImpl implements AnimalServices {
         animalRepository.deleteById(id);
     }
 
-    public List<Animal> findAnimalesByCaracteristicas(Caracteristicas caracteristicas) {
-        return animalRepository.findAnimalesByCaracteristicas(caracteristicas.getHabitat(), caracteristicas.getDieta(), caracteristicas.getVidaMedia());
+    public List<Animal> findAnimalesByNombreEspecie(Animal animal) {
+        return animalRepository.findAnimalesByNombreEspecie(animal.getNombre(), animal.getEspecie());
     }
 }
