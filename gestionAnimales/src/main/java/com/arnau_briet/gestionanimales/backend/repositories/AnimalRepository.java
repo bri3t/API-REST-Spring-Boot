@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.arnau_briet.gestionanimales.backend.business.model.Animal;
-import com.arnau_briet.gestionanimales.backend.business.model.Caracteristicas;
+
+
 
 public interface AnimalRepository extends JpaRepository<Animal, Long> {
 

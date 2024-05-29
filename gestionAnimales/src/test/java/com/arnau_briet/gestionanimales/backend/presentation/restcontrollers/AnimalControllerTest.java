@@ -66,24 +66,22 @@ public class AnimalControllerTest {
     }
 
     @Test
-    void pedir_todos_los_animales() throws Exception {
+    void shouldReturnAllAnimals() throws Exception {
         // Arrange
-
         List<Animal> animales = Arrays.asList(animal1, animal2);
         when(animalServices.getAll()).thenReturn(animales);
 
         // Act
-
-        MvcResult respuesta = miniPostman.perform(get("/animales").contentType("application/json"))
+        MvcResult result = 
+        miniPostman.perform(get("/animales")
+                .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andReturn();
 
-        String responseBody = respuesta.getResponse().getContentAsString();
-
-        String respuestaEsperada = objectMapper.writeValueAsString(animales);
+        String responseBody = result.getResponse().getContentAsString();
+        String expectedResponse = objectMapper.writeValueAsString(animales);
 
         // Assert
-
-        assertThat(responseBody).isEqualToIgnoringWhitespace(respuestaEsperada);
+        assertThat(responseBody).isEqualToIgnoringWhitespace(expectedResponse);
     }
 }
